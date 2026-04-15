@@ -1,0 +1,18 @@
+on:
+  workflow_dispatch:
+    inputs:
+      repo_url:
+        description: 'Vilket elevrepo ska sammanfattas?'
+        required: true
+      kapitel:
+        description: 'T.ex. kapitel-3'
+        required: false
+
+jobs:
+  summarize:
+    uses: WEUWEB01-TE23A-TETEK23-ORG/classroom-actions/.github/workflows/summarize-lesson.yml@main
+    with:
+      repo_url: ${{ inputs.repo_url }}
+      kapitel: ${{ inputs.kapitel }}
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
