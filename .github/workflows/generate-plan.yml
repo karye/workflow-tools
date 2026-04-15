@@ -1,0 +1,45 @@
+name: Generera plan.md från källkod
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_repo:
+        description: 'Elevrepo att analysera (t.ex. WEUWEB01-TE23A-TETEK23-ORG/lektioner-karimryde-nti)'
+        required: true
+      kapitel:
+        description: 'Kapitel att analysera (t.ex. kapitel-8)'
+        required: true
+
+jobs:
+  generate-plan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checka ut elevrepo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.target_repo }}
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Sätt upp Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Installera beroenden
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-genai
+
+      - name: Hämta skript från workflow-tools
+        run: |
+          curl -sSL https://raw.githubusercontent.com/karye/workflow-tools/main/scripts/generate_plan.py -o generate_plan.py
+
+      - name: Kör skript
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.0-flash
+          KAPITEL: ${{ inputs.kapitel }}
+        run: python generate_plan.py
